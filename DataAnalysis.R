@@ -185,7 +185,7 @@ ggplot(wdc.pcb.sp, aes(x = factor(StateSampled, levels = sites),
   geom_boxplot(width = 0.7, outlier.shape = NA, alpha = 0) +
   geom_hline(yintercept = 0.03, color = "#cc0000") # median 
 
-# Temporal plots and analysis ---------------------------------------------
+# Temporal analysis and plots---------------------------------------------
 # Analysis
 # Needs to add a individual number for each site name
 # to perform regression analysis, linear and Linear Mixed-Effects Model (LME)
@@ -219,7 +219,7 @@ shapiro.test(res)
 ks.test(res, 'pnorm')
 
 # (ii) tPCB^(1/4)
-lr.tpcb.2 <- lm(tPCB^(1/4) ~ time, data = tpcb.tmp)
+lr.tpcb.2 <- lm(1/(tPCB + 1)^0.5 ~ time, data = tpcb.tmp)
 # See results
 summary(lr.tpcb.2)
 # Look at residuals
