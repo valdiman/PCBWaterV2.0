@@ -37,8 +37,8 @@ wdc.0 <- read.csv("WaterDataCongenerAroclor062322.csv")
 
 # Data analysis -----------------------------------------------------------
 
+# Look at potential distributions
 # Needs to add a individual number for each site name
-# to perform regression analysis, linear and Linear Mixed-Effects Model (LME)
 site.numb <- wdc.0$SiteName %>% as.factor() %>% as.numeric
 wdc.site <- add_column(wdc.0,
                        site.numb, .after = "AroclorCongener")
