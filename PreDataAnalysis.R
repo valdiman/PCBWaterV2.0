@@ -39,15 +39,22 @@ wdc.0 <- read.csv("WaterDataCongenerAroclor062322.csv")
 
 # Look at potential distributions
 # Needs to add a individual number for each site name
+# Create a site number
 site.numb <- wdc.0$SiteName %>% as.factor() %>% as.numeric
+# Include site number after AroclorCongener column
 wdc.site <- add_column(wdc.0,
                        site.numb, .after = "AroclorCongener")
+# Format date
 wdc.site$SampleDate <- as.Date(wdc.site$SampleDate,
                                format = "%m/%d/%y")
 # Calculate total PCB per sample
-tpcb.tmp <- rowSums(wdc.site[, c(13:116)], na.rm = T)
+tpcb <- rowSums(wdc.site[, c(13:116)], na.rm = T)
+# Create sampling days from the first sample date
 time.day <- data.frame(as.Date(wdc.site$SampleDate) - min(as.Date(wdc.site$SampleDate)))
-# Generate data.frame for analysis and plots
-tpcb.tmp <- cbind(data.frame(time.day), as.matrix(tpcb.tmp),
+# Generate data.frame w/ time.day, tpcb and modify date
+tpcb <- cbind(data.frame(time.day), as.matrix(tpcb),
                   wdc.site$SampleDate)
-colnames(tpcb.tmp) <- c("time", "tPCB", "date")
+colnames(tpcb) <- c("time", "tPCB", "date")
+
+
+
