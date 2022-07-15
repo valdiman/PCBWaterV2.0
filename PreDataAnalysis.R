@@ -49,12 +49,113 @@ wdc.site$SampleDate <- as.Date(wdc.site$SampleDate,
                                format = "%m/%d/%y")
 # Calculate total PCB per sample
 tpcb <- rowSums(wdc.site[, c(13:116)], na.rm = T)
+
+# Remove metadata
+wdc.site.1 <- subset(wdc.site, select = -c(ID:site.numb))
+# Remove Aroclor data
+wdc.site.1 <- subset(wdc.site.1, select = -c(A1016:A1260))
+log.pcb <- log10(wdc.site.1)
+t.log.pcb <- rowSums(log.pcb, na.rm = T)
+
+
+hist(t.log.pcb)
+qqnorm(t.log.pcb + 1)
+# Add a straight diagonal line to the plot
+qqline(t.log.pcb +1)
+
+
+# Calculate the log10 of each congener and sum it
+
+
+log.tpcb <- rowSums(wdc.site[, log10(c(13:116))], na.rm = T)
+
 # Create sampling days from the first sample date
 time.day <- data.frame(as.Date(wdc.site$SampleDate) - min(as.Date(wdc.site$SampleDate)))
 # Generate data.frame w/ time.day, tpcb and modify date
-tpcb <- cbind(data.frame(time.day), as.matrix(tpcb),
-                  wdc.site$SampleDate)
-colnames(tpcb) <- c("time", "tPCB", "date")
+tpcb <- cbind(wdc.site$SampleDate, as.matrix(tpcb),
+                  data.frame(time.day))
+colnames(tpcb) <- c("date", "tPCB", "time")
+# Change date format to years
+tpcb$date <- format(as.Date(tpcb$date, format="%d/%m/%Y"),"%Y")
+# Histograms
+# All data
+hist(tpcb$tPCB)
+hist(log10(tpcb$tPCB))
+hist(log10(tpcb.1995$tPCB))
+# Create Q-Q plot for residuals
+qqnorm(log10(tpcb$tPCB + 1))
+# Add a straight diagonal line to the plot
+qqline(log10(tpcb$tPCB + 1))
+
+
+# Separated by dates
+tpcb.1995 <- tpcb[tpcb$date <= 1995, ]
+tpcb.2000 <- tpcb[tpcb$date > 1995 & tpcb$date <= 2000, ]
+tpcb.2005 <- tpcb[tpcb$date > 2000 & tpcb$date <= 2005, ]
+tpcb.2010 <- tpcb[tpcb$date > 2005 & tpcb$date <= 2010, ]
+tpcb.2015 <- tpcb[tpcb$date > 2010 & tpcb$date <= 2015, ]
+tpcb.2020 <- tpcb[tpcb$date > 2015 & tpcb$date <= 2020, ]
+tpcb.2000.1 <- tpcb[tpcb$date <= 2000, ]
+tpcb.2020.1 <- tpcb[tpcb$date > 2000 & tpcb$date <= 2020, ]
+tpcb.2005.1 <- tpcb[tpcb$date <= 2005, ]
+tpcb.2020.2 <- tpcb[tpcb$date > 2005 & tpcb$date <= 2020, ]
 
 
 
+hist(tpcb.1995$tPCB)
+hist(log10(tpcb.1995$tPCB))
+# Create Q-Q plot for residuals
+qqnorm(log10(tpcb.1995$tPCB + 1))
+# Add a straight diagonal line to the plot
+qqline(log10(tpcb$tPCB + 1))
+
+hist(tpcb.2000$tPCB)
+hist(log10(tpcb.2000$tPCB))
+# Create Q-Q plot for residuals
+qqnorm(log10(tpcb.2000$tPCB + 1))
+# Add a straight diagonal line to the plot
+qqline(log10(tpcb.2000$tPCB + 1))
+
+hist(tpcb.2005$tPCB)
+hist(log10(tpcb.2005$tPCB))
+# Create Q-Q plot for residuals
+qqnorm(log10(tpcb.2005$tPCB + 1))
+# Add a straight diagonal line to the plot
+qqline(log10(tpcb.2005$tPCB + 1))
+
+hist(tpcb.2010$tPCB)
+hist(log10(tpcb.2010$tPCB))
+# Create Q-Q plot for residuals
+qqnorm(log10(tpcb.2010$tPCB + 1))
+# Add a straight diagonal line to the plot
+qqline(log10(tpcb.2010$tPCB + 1))
+
+hist(tpcb.2015$tPCB)
+hist(log10(tpcb.2015$tPCB))
+# Create Q-Q plot for residuals
+qqnorm(log10(tpcb.2015$tPCB + 1))
+# Add a straight diagonal line to the plot
+qqline(log10(tpcb.2015$tPCB + 1))
+
+hist(tpcb.2020$tPCB)
+hist(log10(tpcb.2020$tPCB))
+# Create Q-Q plot for residuals
+qqnorm(log10(tpcb.2020$tPCB + 1))
+# Add a straight diagonal line to the plot
+qqline(log10(tpcb.2020$tPCB + 1))
+
+# Perform linear regression (lr)
+# + 1
+lr.tpcb <- lm(log10(tPCB + 1) ~ time, data = tpcb.2005.1)
+# See results
+summary(lr.tpcb)
+# Look at residuals
+res <- resid(lr.tpcb) # get list of residuals
+# Create Q-Q plot for residuals
+qqnorm(res)
+# Add a straight diagonal line to the plot
+qqline(res)
+# Shapiro test
+shapiro.test(res)
+# One-sample Kolmogorov-Smirnov test
+ks.test(res, 'pnorm')
