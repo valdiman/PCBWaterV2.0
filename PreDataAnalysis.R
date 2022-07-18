@@ -35,10 +35,8 @@ wdc.0 <- read.csv("WaterDataCongenerAroclor062322.csv")
 # Needs to add a individual number for each site name
 # Create a site number
 site.numb <- wdc.0$SiteName %>% as.factor() %>% as.numeric
-wdc.site <- add_column(wdc.0,
-                       site.numb, .after = "AroclorCongener")
-wdc.site$SampleDate <- as.Date(wdc.site$SampleDate,
-                               format = "%m/%d/%y")
+wdc.site <- add_column(wdc.0, site.numb, .after = "AroclorCongener")
+wdc.site$SampleDate <- as.Date(wdc.site$SampleDate, format = "%m/%d/%y")
 # Calculate total PCB per sample
 tpcb <- rowSums(wdc.site[, c(13:116)], na.rm = T)
 time.day <- data.frame(as.Date(wdc.site$SampleDate) - min(as.Date(wdc.site$SampleDate)))
@@ -54,6 +52,8 @@ wdc.site.1 <- subset(wdc.site, select = -c(ID:site.numb))
 wdc.site.1 <- subset(wdc.site.1, select = -c(A1016:A1260))
 log.pcb <- log10(wdc.site.1)
 t.log.pcb <- rowSums(log.pcb, na.rm = T)
+# Replace -inf to NA
+t.log.pcb[is.infinite(t.log.pcb)] = NA
 # Generate data.frame for analysis and plots
 log.tpcb <- cbind(data.frame(time.day), as.matrix(t.log.pcb),
               wdc.site$SampleDate)
@@ -63,6 +63,8 @@ colnames(log.tpcb) <- c("time", "tPCB", "date")
 hist(tpcb$tPCB)
 hist(log10(tpcb$tPCB))
 hist(log.tpcb$tPCB)
+hist(log10(log.tpcb$tPCB))
+hist(log10(1 + min(-126.22764) + log.tpcb$tPCB))
 
 # Regressions
 # (1) Total PCB, tpcb
@@ -109,7 +111,7 @@ ks.test(res, 'pnorm')
 # (2) Sum of log10 individual PCBs, log.tpcb
 # (2.1) Perform linear regression (lr)
 # + 1
-lr.tpcb <- lm(log10(tPCB + 1) ~ time, data = log.tpcb)
+lr.tpcb <- lm(tPCB ~ time, data = log.tpcb)
 # See results
 summary(lr.tpcb)
 # Look at residuals
@@ -128,7 +130,7 @@ ks.test(res, 'pnorm')
 site <- wdc.site$site.numb
 time <- tpcb$time
 # + 1
-lmem.tpcb <- lmer(log10(log.tpcb$tPCB + 1) ~ 1 + time + (1|site),
+lmem.tpcb <- lmer(log.tpcb$tPCB ~ 1 + time + (1|site),
                   REML = FALSE,
                   control = lmerControl(check.nobs.vs.nlev = "ignore",
                                         check.nobs.vs.rankZ = "ignore",
@@ -139,7 +141,7 @@ summary(lmem.tpcb)
 # Look at residuals
 res <- resid(lmem.tpcb) # get list of residuals
 # Create Q-Q plot for residuals
-qqnorm(res, main = "log10(C + 1)")
+qqnorm(res, main = "C")
 # Add a straight diagonal line to the plot
 qqline(res)
 # Shapiro test
@@ -156,11 +158,75 @@ Hud.R <- wdc.0[str_detect(wdc.0$SiteName, 'HudsonRiver'),]
 Hou.R <- wdc.0[str_detect(wdc.0$SiteName, 'HousatonicRiver'),]
 Kal.R <- wdc.0[str_detect(wdc.0$SiteName, 'KalamazooRiver'),]
 
+# Needs to add a individual number for each site name
+# Select site
+wdc.s <- Kal.R
+# Calculate total PCB per sample
+tpcb <- rowSums(wdc.s[, c(13:116)], na.rm = T)
+# Change date format
+wdc.s$SampleDate <- as.Date(wdc.s$SampleDate, format = "%m/%d/%y")
+# Calculte difference between initial time and rest
+time.day <- data.frame(as.Date(wdc.s$SampleDate) - min(as.Date(wdc.s$SampleDate)))
+# Generate data.frame for analysis and plots
+tpcb.s <- cbind(data.frame(time.day), as.matrix(tpcb), wdc.s$SampleDate)
+colnames(tpcb.s) <- c("time", "tPCB", "date")
 
+# Calculate total log PCB per sample
+# Remove metadata
+wdc.s.1 <- subset(wdc.s, select = -c(ID:AroclorCongener))
+# Remove Aroclor data
+wdc.s.1 <- subset(wdc.s.1, select = -c(A1016:A1260))
+log.pcb <- log10(wdc.s.1)
+t.log.pcb <- rowSums(log.pcb, na.rm = T)
+# Replace -inf to NA
+t.log.pcb[is.infinite(t.log.pcb)] = NA
+# Generate data.frame for analysis and plots
+log.tpcb.s <- cbind(data.frame(time.day), as.matrix(t.log.pcb),
+                  wdc.s$SampleDate)
+colnames(log.tpcb.s) <- c("time", "tPCB", "date")
 
+# Histograms
+hist(tpcb.s$tPCB)
+hist(log10(tpcb.s$tPCB))
+hist(log.tpcb.s$tPCB)
 
+# Regressions
+# (1) Total PCB, tpcb
+# (1.1) Perform linear regression (lr)
+# + 1
+lr.tpcb <- lm(log10(tPCB + 1) ~ time, data = tpcb.s)
+# See results
+summary(lr.tpcb)
+# Look at residuals
+res <- resid(lr.tpcb) # get list of residuals
+# Create Q-Q plot for residuals
+qqnorm(res)
+# Add a straight diagonal line to the plot
+qqline(res)
+# Shapiro test
+shapiro.test(res)
+# One-sample Kolmogorov-Smirnov test
+ks.test(res, 'pnorm')
 
-# Separated by dates
+# (2) Sum of log10 individual PCBs, log.tpcb
+# (2.1) Perform linear regression (lr)
+lr.tpcb <- lm(tPCB ~ time, data = log.tpcb.s)
+# See results
+summary(lr.tpcb)
+# Look at residuals
+res <- resid(lr.tpcb) # get list of residuals
+# Create Q-Q plot for residuals
+qqnorm(res)
+# Add a straight diagonal line to the plot
+qqline(res)
+# Shapiro test
+shapiro.test(res)
+# One-sample Kolmogorov-Smirnov test
+ks.test(res, 'pnorm')
+
+# Data per date -----------------------------------------------------------
+
+# Separated data per dates
 tpcb.1995 <- tpcb[tpcb$date <= 1995, ]
 tpcb.2000 <- tpcb[tpcb$date > 1995 & tpcb$date <= 2000, ]
 tpcb.2005 <- tpcb[tpcb$date > 2000 & tpcb$date <= 2005, ]
