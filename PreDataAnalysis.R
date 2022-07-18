@@ -45,6 +45,9 @@ tpcb <- cbind(data.frame(time.day), as.matrix(tpcb),
                   wdc.site$SampleDate)
 colnames(tpcb) <- c("time", "tPCB", "date")
 
+# Check outliers
+max(tpcb$tPCB)/1000/1000
+
 # Calculate total log PCB per sample
 # Remove metadata
 wdc.site.1 <- subset(wdc.site, select = -c(ID:site.numb))
@@ -61,10 +64,13 @@ colnames(log.tpcb) <- c("time", "tPCB", "date")
 
 # Histograms
 hist(tpcb$tPCB)
+hist(tpcb$tPCB[tpcb$tPCB < 10])
+hist(log10(tpcb$tPCB[tpcb$tPCB < 10^6]))
+
 hist(log10(tpcb$tPCB))
 hist(log.tpcb$tPCB)
 hist(log10(log.tpcb$tPCB))
-hist(log10(1 + min(-126.22764) + log.tpcb$tPCB))
+hist(log10(1 + 126.22764 + log.tpcb$tPCB))
 
 # Regressions
 # (1) Total PCB, tpcb
@@ -160,7 +166,7 @@ Kal.R <- wdc.0[str_detect(wdc.0$SiteName, 'KalamazooRiver'),]
 
 # Needs to add a individual number for each site name
 # Select site
-wdc.s <- Kal.R
+wdc.s <- Hud.R
 # Calculate total PCB per sample
 tpcb <- rowSums(wdc.s[, c(13:116)], na.rm = T)
 # Change date format
@@ -188,7 +194,7 @@ colnames(log.tpcb.s) <- c("time", "tPCB", "date")
 # Histograms
 hist(tpcb.s$tPCB)
 hist(log10(tpcb.s$tPCB))
-hist(log.tpcb.s$tPCB)
+hist(log10(log.tpcb.s$tPCB))
 
 # Regressions
 # (1) Total PCB, tpcb
