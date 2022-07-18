@@ -24,7 +24,7 @@ library(scales) # function trans_breaks
 #library(gridExtra)
 #library(tidyverse)
 #library(reshape2)
-library(stringr)
+library(stringr) # str_detect
 library(robustbase) #function colMedians
 library(dplyr) # %>%
 library(tibble) # function add a column
