@@ -122,7 +122,7 @@ ks.test(res, 'pnorm')
 
 # (ii) Sum of log10 individual PCBs, log.tpcb
 # (ii.1) Perform linear regression (lr)
-lr.tpcb <- lm(logtPCB ~ time, data = log.tpcb)
+lr.tpcb <- lm(log10(1 + 122.22764 + log.tpcb$logtPCB) ~ time, data = log.tpcb)
 # See results
 summary(lr.tpcb)
 # Look at residuals
@@ -155,6 +155,49 @@ qqline(res)
 shapiro.test(res)
 # One-sample Kolmogorov-Smirnov test
 ks.test(res, 'pnorm')
+
+# Logistic Regression -----------------------------------------------------
+
+# Create column with just year
+tpcb$year <- format(as.Date(tpcb$date, format="%d/%m/%Y"),"%Y")
+# Create a site number
+site.numb <- wdc.0$SiteName %>% as.factor() %>% as.numeric
+tpcb$site.num <- site.numb
+
+# Include 0 or 1 if tPCB is 0 or 1, respectively
+for (i in 1:dim(tpcb)[1]) {
+  if(tpcb$tPCB[i] == 0)
+    tpcb$log[i] <- 0
+  else
+    tpcb$log[i] <- 1
+}
+
+# Perform logistic regression
+logre.tpcb <- glm(log ~ site.num + time, family = "binomial", data = tpcb)
+
+# See results
+summary(logre.tpcb)
+
+# Replace NA to 0
+log.tpcb[is.na(log.tpcb)] = 0
+# Create column with just year
+log.tpcb$year <- format(as.Date(log.tpcb$date, format="%d/%m/%Y"),"%Y")
+# Create a site number
+site.numb <- wdc.0$SiteName %>% as.factor() %>% as.numeric
+log.tpcb$site.num <- site.numb
+
+for (i in 1:dim(log.tpcb)[1]) {
+  if(log.tpcb$logtPCB[i] == 0)
+    log.tpcb$log[i] <- 0
+  else
+    log.tpcb$log[i] <- 1
+}
+
+# Perform logistic regression
+logre.tpcb <- glm(log ~ site.num, family = "binomial", data = tpcb)
+
+# See results
+summary(logre.tpcb)
 
 # Analysis per site -------------------------------------------------------
 
