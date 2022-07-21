@@ -236,19 +236,22 @@ ks.test(res, 'pnorm')
 # Data per date -----------------------------------------------------------
 
 # Separated data per dates
-tpcb.1995 <- tpcb[tpcb$date <= 1995, ]
-tpcb.2000 <- tpcb[tpcb$date > 1995 & tpcb$date <= 2000, ]
-tpcb.2005 <- tpcb[tpcb$date > 2000 & tpcb$date <= 2005, ]
-tpcb.2010 <- tpcb[tpcb$date > 2005 & tpcb$date <= 2010, ]
-tpcb.2015 <- tpcb[tpcb$date > 2010 & tpcb$date <= 2015, ]
-tpcb.2020 <- tpcb[tpcb$date > 2015 & tpcb$date <= 2020, ]
-tpcb.2000.1 <- tpcb[tpcb$date <= 2000, ]
-tpcb.2020.1 <- tpcb[tpcb$date > 2000 & tpcb$date <= 2020, ]
-tpcb.2005.1 <- tpcb[tpcb$date <= 2005, ]
-tpcb.2020.2 <- tpcb[tpcb$date > 2005 & tpcb$date <= 2020, ]
+# (i) PCBs
+# Create column with just year
+tpcb$year <- format(as.Date(tpcb$date, format="%d/%m/%Y"),"%Y")
+# Years
+tpcb.1995 <- tpcb[tpcb$year <= 1995, ]
+tpcb.2000 <- tpcb[tpcb$year > 1995 & tpcb$year <= 2000, ]
+tpcb.2005 <- tpcb[tpcb$year > 2000 & tpcb$year <= 2005, ]
+tpcb.2010 <- tpcb[tpcb$year > 2005 & tpcb$year <= 2010, ]
+tpcb.2015 <- tpcb[tpcb$year > 2010 & tpcb$year <= 2015, ]
+tpcb.2020 <- tpcb[tpcb$year > 2015 & tpcb$year <= 2020, ]
+tpcb.2000.1 <- tpcb[tpcb$year <= 2000, ]
+tpcb.2020.1 <- tpcb[tpcb$year > 2000 & tpcb$year <= 2020, ]
+tpcb.2005.1 <- tpcb[tpcb$year <= 2005, ]
+tpcb.2020.2 <- tpcb[tpcb$year > 2005 & tpcb$year <= 2020, ]
 
-
-
+# Histograms
 hist(tpcb.1995$tPCB)
 hist(log10(tpcb.1995$tPCB))
 # Create Q-Q plot for residuals
@@ -291,18 +294,61 @@ qqnorm(log10(tpcb.2020$tPCB + 1))
 # Add a straight diagonal line to the plot
 qqline(log10(tpcb.2020$tPCB + 1))
 
-# Perform linear regression (lr)
-# + 1
-lr.tpcb <- lm(log10(tPCB + 1) ~ time, data = tpcb.2005.1)
-# See results
-summary(lr.tpcb)
-# Look at residuals
-res <- resid(lr.tpcb) # get list of residuals
+# (ii) log10 PCBs
+# Create column with just year
+tpcb$year <- format(as.Date(log.tpcb$date, format="%d/%m/%Y"),"%Y")
+# Years
+tpcb.1995 <- tpcb[tpcb$year <= 1995, ]
+tpcb.2000 <- tpcb[tpcb$year > 1995 & tpcb$year <= 2000, ]
+tpcb.2005 <- tpcb[tpcb$year > 2000 & tpcb$year <= 2005, ]
+tpcb.2010 <- tpcb[tpcb$year > 2005 & tpcb$year <= 2010, ]
+tpcb.2015 <- tpcb[tpcb$year > 2010 & tpcb$year <= 2015, ]
+tpcb.2020 <- tpcb[tpcb$year > 2015 & tpcb$year <= 2020, ]
+tpcb.2000.1 <- tpcb[tpcb$year <= 2000, ]
+tpcb.2020.1 <- tpcb[tpcb$year > 2000 & tpcb$year <= 2020, ]
+tpcb.2005.1 <- tpcb[tpcb$year <= 2005, ]
+tpcb.2020.2 <- tpcb[tpcb$year > 2005 & tpcb$year <= 2020, ]
+
+# Histograms
+hist(tpcb.1995$tPCB)
+hist(log10(tpcb.1995$tPCB))
 # Create Q-Q plot for residuals
-qqnorm(res)
+qqnorm(log10(tpcb.1995$tPCB + 1))
 # Add a straight diagonal line to the plot
-qqline(res)
-# Shapiro test
-shapiro.test(res)
-# One-sample Kolmogorov-Smirnov test
-ks.test(res, 'pnorm')
+qqline(log10(tpcb$tPCB + 1))
+
+hist(tpcb.2000$tPCB)
+hist(log10(tpcb.2000$tPCB))
+# Create Q-Q plot for residuals
+qqnorm(log10(tpcb.2000$tPCB + 1))
+# Add a straight diagonal line to the plot
+qqline(log10(tpcb.2000$tPCB + 1))
+
+hist(tpcb.2005$tPCB)
+hist(log10(tpcb.2005$tPCB))
+# Create Q-Q plot for residuals
+qqnorm(log10(tpcb.2005$tPCB + 1))
+# Add a straight diagonal line to the plot
+qqline(log10(tpcb.2005$tPCB + 1))
+
+hist(tpcb.2010$tPCB)
+hist(log10(tpcb.2010$tPCB))
+# Create Q-Q plot for residuals
+qqnorm(log10(tpcb.2010$tPCB + 1))
+# Add a straight diagonal line to the plot
+qqline(log10(tpcb.2010$tPCB + 1))
+
+hist(tpcb.2015$tPCB)
+hist(log10(tpcb.2015$tPCB))
+# Create Q-Q plot for residuals
+qqnorm(log10(tpcb.2015$tPCB + 1))
+# Add a straight diagonal line to the plot
+qqline(log10(tpcb.2015$tPCB + 1))
+
+hist(tpcb.2020$tPCB)
+hist(log10(tpcb.2020$tPCB))
+# Create Q-Q plot for residuals
+qqnorm(log10(tpcb.2020$tPCB + 1))
+# Add a straight diagonal line to the plot
+qqline(log10(tpcb.2020$tPCB + 1))
+
